@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SiteUpdater": {
+      "commandName": "Project",
+      "commandLineArgs": "--sitename=MyWebSite --port=80 --source=C:\\dev\\source --destination=c:\\mywebsite"
+    }
+  }
+}
