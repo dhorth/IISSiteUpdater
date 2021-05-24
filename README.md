@@ -1,7 +1,7 @@
 # IIS Site Updater
 
 
-[![Build Status](https://travis-ci.org/dhorth/IISSiteUpdater.png?branch=master)](https://travis-ci.org/dhorth/IISSiteUpdater)
+[![Build Status](https://travis-ci.org/dhorth/IISSiteUpdater.png?branch=main)](https://travis-ci.org/dhorth/IISSiteUpdater)
 
 
 IIS Site Updater is a command line tool to create or update IIS web sites.  Using dot net core [Microsoft.Web.Administration](https://docs.microsoft.com/en-us/dotnet/api/microsoft.web.administration?view=iis-dotnet) to manage IIS sites and app pools.  Site Updater will copy project directories from a source directory to the IIS Manager physical path defined in IIS Site definition.  This tool can use either command line arguments or appSettings.json as an input for command parameters.
