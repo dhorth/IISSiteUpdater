@@ -9,6 +9,7 @@ namespace SiteUpdater
     public class SiteUpdaterExceptionBase : Exception
     {
         public SiteUpdaterExceptionBase() : base() { }
+        public SiteUpdaterExceptionBase(string msg) : base(msg) { }
         public SiteUpdaterExceptionBase(string msg, Exception ex) : base(msg, ex) { }
     }
 
@@ -18,6 +19,17 @@ namespace SiteUpdater
     }
     public class SiteUpdaterConfigurationMissingArgumentsException : SiteUpdaterExceptionBase
     {
+    }
+    public class SiteUpdaterMissingTargetsException : SiteUpdaterExceptionBase
+    {
+    }
+    public class SiteUpdaterMissingDirectoryException : SiteUpdaterExceptionBase
+    {
+        public SiteUpdaterMissingDirectoryException(string dir) : base($"Missing '{dir}' setting in appSettings.json") { }
+    }
+    public class SiteUpdaterBadDirectoryException : SiteUpdaterExceptionBase
+    {
+        public SiteUpdaterBadDirectoryException(string dir) : base($"'{dir}' does not exists") { }
     }
 
 }

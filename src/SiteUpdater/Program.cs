@@ -30,15 +30,15 @@ namespace SiteUpdater
             try
             {
 
-                var siteManager = new SiteManager(config, _log);
-                var siteCount = 0;
-                var siteProcessedCount = 0;
-                if (args.Length > 0 && args[0].Equals("-h", StringComparison.OrdinalIgnoreCase) || args[0].Equals("-?", StringComparison.OrdinalIgnoreCase))
+                if (args.Length > 0 && (args[0].Equals("-h", StringComparison.OrdinalIgnoreCase) || args[0].Equals("-?", StringComparison.OrdinalIgnoreCase)))
                 {
                     Help();
                     return 0;
                 }
 
+                var siteManager = new SiteManager(config, _log);
+                var siteCount = 0;
+                var siteProcessedCount = 0;
                 if (!siteManager.IsUserAdministrator())
                     return 1;
 
@@ -57,6 +57,23 @@ namespace SiteUpdater
 
                 _log.Write(ret == 0 ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Warning,
                     $"Site Updater {(ret == 0 ? "Successfully" : "")} Updated {siteProcessedCount} out of {siteCount} sites");
+            }
+            catch (SiteUpdaterMissingDirectoryException ex)
+            {
+                _log.Fatal("Directory setting not found in appSettings.json");
+                _log.Fatal(ex.Message);
+                _log.Fatal("SiteUpdater -h for help");
+            }
+            catch (SiteUpdaterBadDirectoryException ex)
+            {
+                _log.Fatal("Directory is not valid");
+                _log.Fatal(ex.Message);
+                _log.Fatal("SiteUpdater -h for help");
+            }
+            catch (SiteUpdaterMissingTargetsException)
+            {
+                _log.Fatal("No targets found in appSettings.json");
+                _log.Fatal("SiteUpdater -h for help");
             }
             catch (SiteUpdaterConfigurationException ex)
             {
@@ -125,13 +142,16 @@ namespace SiteUpdater
             var ret = 0;
             siteCount = 0;
             var targets = config.GetSection("Targets");
-            _log.Information($"Found {targets.GetChildren().Count()} sites to create/update");
+            siteCount=targets.GetChildren().Count();
+            if(siteCount<=0)
+                throw new SiteUpdaterMissingTargetsException();
+
+            _log.Information($"Found {siteCount} sites to create/update");
             foreach (var target in targets.GetChildren())
             {
                 var siteret = siteManager.InstallSite(target.Key, int.Parse(target.Value));
                 if (siteret == 0)
                     ret++;
-                siteCount++;
             }
 
             return ret;
@@ -150,7 +170,7 @@ namespace SiteUpdater
             Console.WriteLine("\tIf a site name is specified, then the targets in appSettings will be ignored and ");
             Console.WriteLine("\tthe remainder of the parameters must be specified");
             Console.WriteLine();
-            Console.WriteLine("\tThis tool requires administrative priveleges");
+            Console.WriteLine("\tThis tool requires administrative privileges");
             Console.WriteLine();
             Console.WriteLine("Usage:");
             Console.WriteLine("\tSiteUpdater [--siteName=iiswebsite --port=80, --source==c:\\source --destination=c:\\destination]");
@@ -159,7 +179,7 @@ namespace SiteUpdater
             Console.WriteLine($"\t{"-n; --siteName".PadRight(17)} The name of the site to update/create");
             Console.WriteLine($"\t{"-p; --port".PadRight(17)} The port of the site");
             Console.WriteLine($"\t{"-s; --source".PadRight(17)} The source folder to copy the application from (excluding sitename)");
-            Console.WriteLine($"\t{"-d; --destination".PadRight(17)} The folder for the site, aka the destination of the updated filees");
+            Console.WriteLine($"\t{"-d; --destination".PadRight(17)} The folder for the site, aka the destination of the updated files");
             Console.WriteLine();
             Console.WriteLine("Returns:");
             Console.WriteLine("\t0 - Success");

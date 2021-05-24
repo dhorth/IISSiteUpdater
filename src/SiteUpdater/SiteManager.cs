@@ -23,8 +23,16 @@ namespace SiteUpdater
         {
             _log = log;
 
-            _sourceDir = config.GetSection("Souorce").Value;
+            _sourceDir = config.GetSection("Source").Value;
+            if (string.IsNullOrWhiteSpace(_sourceDir))
+                throw new SiteUpdaterMissingDirectoryException("Source");
+            
+            if(!Directory.Exists(_sourceDir))
+                throw new SiteUpdaterBadDirectoryException("Source");
+
             _destinationDir = config.GetSection("Destination").Value;
+            if (string.IsNullOrWhiteSpace(_destinationDir))
+                throw new SiteUpdaterMissingDirectoryException("Destination");
 
             _log.Debug($"Site Update Source Dir = {sourcePath}");
             _log.Debug($"Site Update Desitnation Dir = {destinationPath}");
@@ -36,7 +44,7 @@ namespace SiteUpdater
             _siteName = siteName;
             _port = port;
             _log.Debug($"Install Site - {siteName}:{port}");
-    
+
             rc = StopServer();
             rc += AddSite();
             rc += UpdateSite();
@@ -94,7 +102,7 @@ namespace SiteUpdater
                     try
                     {
                         var pool = sm.ApplicationPools.FirstOrDefault(a => a.Name == _siteName);
-                        // if (pool != null && (pool.State== ObjectState.Started || pool.State ==ObjectState.Starting))
+                        if (pool != null && (pool.State== ObjectState.Started || pool.State ==ObjectState.Starting))
                         {
                             pool.Stop();
                         }
@@ -291,7 +299,7 @@ namespace SiteUpdater
                 WindowsIdentity user = WindowsIdentity.GetCurrent();
                 WindowsPrincipal principal = new WindowsPrincipal(user);
                 isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-                if(!isAdmin)
+                if (!isAdmin)
                     _log.Fatal("This program requires Administrative Privaleges, please restart with elevated rights");
             }
             catch (UnauthorizedAccessException ex)
