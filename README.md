@@ -117,11 +117,11 @@ The most critical level, Fatal events demand immediate attention.
 
 flow chart:
 
-@startmermaid
+```mermaid
 graph LR
 A[Start Target] --> B{Site Running} --> C(Stop Site) -->D
 B -- Not Running--> D
 D{Site Exists} -->F(Add Site) -->G(Copy Files) 
 D -- No -->G -->H[Start Site]
-@endmermaid
+```
 
